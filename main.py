@@ -2,6 +2,7 @@ import sys
 import openpyxl
 from openpyxl import Workbook
 import openpyxl.styles.colors
+from openpyxl.utils import get_column_letter
 from copy import copy
 from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font
 
@@ -110,8 +111,13 @@ def transform_label(lbl, xforms):
 
 
 def transform_value(lbl, xforms):
-    if lbl == "color":
-        x = 1
+
+    if not lbl:
+        return None
+
+    if type(lbl) != str:
+        lbl = str(lbl)
+
     if not lbl or len(lbl) == 0 or is_pred_label(lbl) or is_kbd_label(lbl) or is_back_label(lbl):
         return lbl
 
@@ -141,6 +147,7 @@ for wsi in wbi:
     wso = wbo.create_sheet(title=wsi.title)
     print(f"{wsi.title}\n")
     for xcol in range(1, wsi.max_column + 1):
+        wso.column_dimensions[get_column_letter(xcol)].width = wsi.column_dimensions[get_column_letter(xcol)].width
         for xrow in range(1, wsi.max_row + 1):
             ci = wsi.cell(row=xrow, column=xcol)
             value = transform_value(ci.value, subs)
